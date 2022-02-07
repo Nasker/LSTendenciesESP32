@@ -29,34 +29,41 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
+#define ANALOG_PIN 39
+
 //packet counter
 int counter = 0;
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
 
+void printToScreen(String firstLine, String secondLine, String thirdLine, String fourthLine){
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println(firstLine);
+  display.println(secondLine);
+  display.println(thirdLine);
+  display.println(fourthLine);
+  display.display();
+}
+
 void setup() {
   //initialize Serial Monitor
   Serial.begin(115200);
 
-  //reset OLED display via software
+  //initialize OLED
   pinMode(OLED_RST, OUTPUT);
   digitalWrite(OLED_RST, LOW);
   delay(20);
   digitalWrite(OLED_RST, HIGH);
-
-  //initialize OLED
   Wire.begin(OLED_SDA, OLED_SCL);
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3c, false, false)) { // Address 0x3C for 128x32
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
   
-  display.clearDisplay();
-  display.setTextColor(WHITE);
-  display.setTextSize(1);
-  display.setCursor(0,0);
-  display.print("LORA SENDER ");
-  display.display();
+  printToScreen("LORA SENDER", "TEST", "", "");
   
   Serial.println("LoRa Sender Test");
 
@@ -69,37 +76,23 @@ void setup() {
     Serial.println("Starting LoRa failed!");
     while (1);
   }
-  Serial.println("LoRa Initializing OK!");
-  display.setCursor(0,10);
-  display.print("LoRa Initializing OK!");
-  display.display();
-  delay(2000);
 }
 
 void loop() {
+  int analogValue = analogRead(ANALOG_PIN);
   
   Serial.print("Sending packet: ");
   Serial.println(counter);
 
   //Send LoRa packet to receiver
   LoRa.beginPacket();
-  LoRa.print("HEY YOU!");
-  LoRa.print(counter);
+  //LoRa.print("Analog value: ");
+  LoRa.print(analogValue);
   LoRa.endPacket();
   
-  display.clearDisplay();
-  display.setCursor(0,0);
-  display.println("LORA SENDER");
-  display.setCursor(0,20);
-  display.setTextSize(1);
-  display.print("LoRa packet sent.");
-  display.setCursor(0,30);
-  display.print("Counter:");
-  display.setCursor(50,30);
-  display.print(counter);      
-  display.display();
+  printToScreen("Sending packet: ", "counter", String(analogValue), "");
 
   counter++;
   
-  delay(5000);
+  delay(1000);
 }

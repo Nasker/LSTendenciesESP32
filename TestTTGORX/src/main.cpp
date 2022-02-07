@@ -33,29 +33,35 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
 
 String LoRaData;
 
+void printToScreen(String firstLine, String secondLine, String thirdLine, String fourthLine){
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println(firstLine);
+  display.println(secondLine);
+  display.println(thirdLine);
+  display.println(fourthLine);
+  display.display();
+}
+
+
 void setup() { 
   //initialize Serial Monitor
   Serial.begin(115200);
-  
-  //reset OLED display via software
+
+  //initialize OLED
   pinMode(OLED_RST, OUTPUT);
   digitalWrite(OLED_RST, LOW);
   delay(20);
   digitalWrite(OLED_RST, HIGH);
-  
-  //initialize OLED
   Wire.begin(OLED_SDA, OLED_SCL);
   if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3c, false, false)) { // Address 0x3C for 128x32
     Serial.println(F("SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
 
-  display.clearDisplay();
-  display.setTextColor(WHITE);
-  display.setTextSize(1);
-  display.setCursor(0,0);
-  display.print("LORA RECEIVER ");
-  display.display();
+  printToScreen("LORA RECEIVER", "TEST", "", "");
 
   Serial.println("LoRa Receiver Test");
   
@@ -68,15 +74,9 @@ void setup() {
     Serial.println("Starting LoRa failed!");
     while (1);
   }
-  Serial.println("LoRa Initializing OK!");
-  display.setCursor(0,10);
-  display.println("LoRa Initializing OK!");
-  display.display();  
 }
 
 void loop() {
-
-  //try to parse packet
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
     //received a packet
@@ -94,17 +94,6 @@ void loop() {
     Serial.println(rssi);
 
    // Dsiplay information
-   display.clearDisplay();
-   display.setCursor(0,0);
-   display.print("LORA RECEIVER");
-   display.setCursor(0,20);
-   display.print("Received packet:");
-   display.setCursor(0,30);
-   display.print(LoRaData);
-   display.setCursor(0,40);
-   display.print("RSSI:");
-   display.setCursor(30,40);
-   display.print(rssi);
-   display.display();   
+  printToScreen("Receiving packet:", "Value: "+LoRaData, "RSSI: "+String(rssi), "");
   }
 }
