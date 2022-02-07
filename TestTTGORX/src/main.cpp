@@ -79,21 +79,14 @@ void setup() {
 void loop() {
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    //received a packet
     Serial.print("Received packet ");
-
-    //read packet
     while (LoRa.available()) {
       LoRaData = LoRa.readString();
       Serial.print(LoRaData);
     }
-
-    //print RSSI of packet
     int rssi = LoRa.packetRssi();
     Serial.print(" with RSSI ");    
     Serial.println(rssi);
-
-   // Dsiplay information
-  printToScreen("Receiving packet:", "Value: "+LoRaData, "RSSI: "+String(rssi), "");
+  printToScreen("RX packet:", "Value: "+LoRaData, "RSSI: "+String(rssi), "");
   }
 }

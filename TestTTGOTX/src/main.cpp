@@ -31,9 +31,6 @@
 
 #define ANALOG_PIN 39
 
-//packet counter
-int counter = 0;
-
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
 
 void printToScreen(String firstLine, String secondLine, String thirdLine, String fourthLine){
@@ -80,19 +77,12 @@ void setup() {
 
 void loop() {
   int analogValue = analogRead(ANALOG_PIN);
-  
-  Serial.print("Sending packet: ");
-  Serial.println(counter);
 
-  //Send LoRa packet to receiver
   LoRa.beginPacket();
-  //LoRa.print("Analog value: ");
   LoRa.print(analogValue);
   LoRa.endPacket();
-  
-  printToScreen("Sending packet: ", "counter", String(analogValue), "");
 
-  counter++;
+  printToScreen("TX packet: ", "Value: "+String(analogValue),"", "");
   
-  delay(1000);
+  delay(100);
 }
