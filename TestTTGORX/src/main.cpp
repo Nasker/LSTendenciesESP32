@@ -29,6 +29,8 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
+#define LED_PIN 21
+
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
 
 String LoRaData;
@@ -43,6 +45,18 @@ void printToScreen(String firstLine, String secondLine, String thirdLine, String
   display.println(thirdLine);
   display.println(fourthLine);
   display.display();
+}
+
+void lightLed(int analogValue, int threshold){
+  ledcWrite(0, map(analogValue, 0, 4095, 255, 0));
+  if(analogValue < threshold){
+    //digitalWrite(LED_PIN, HIGH);
+    printToScreen("LIGHT UP!", "", "", "");
+  }
+  else{
+    //digitalWrite(LED_PIN, LOW);
+    printToScreen("LIGHT DOWN!", "", "", "");
+  }
 }
 
 
@@ -74,19 +88,27 @@ void setup() {
     Serial.println("Starting LoRa failed!");
     while (1);
   }
+
+  pinMode(LED_PIN, OUTPUT);
+
+  ledcSetup(0, 1000, 8);
+  ledcAttachPin(LED_PIN, 0);
 }
 
 void loop() {
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
+    int value;
     Serial.print("Received packet ");
     while (LoRa.available()) {
       LoRaData = LoRa.readString();
-      Serial.print(LoRaData);
+      Serial.print(LoRaData + "number value: ");
+      value = LoRaData.toInt();
+      Serial.print(value);
     }
     int rssi = LoRa.packetRssi();
-    Serial.print(" with RSSI ");    
+    Serial.print("  with RSSI ");    
     Serial.println(rssi);
-  printToScreen("RX packet:", "Value: "+LoRaData, "RSSI: "+String(rssi), "");
+    lightLed(value, 2000);
   }
 }

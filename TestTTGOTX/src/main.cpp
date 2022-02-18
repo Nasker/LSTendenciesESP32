@@ -76,7 +76,7 @@ void setup() {
 }
 
 void loop() {
-  int analogValue = 1000;
+  int analogValue = analogRead(ANALOG_PIN);
 
   LoRa.beginPacket();
   LoRa.print(analogValue);
@@ -84,5 +84,5 @@ void loop() {
 
   printToScreen("TX packet: ", "Value: "+String(analogValue),"", "");
   
-  delay(5000);
+  delay(100);
 }
