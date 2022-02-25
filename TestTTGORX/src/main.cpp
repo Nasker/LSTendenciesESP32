@@ -91,8 +91,10 @@ void setup() {
 
   pinMode(LED_PIN, OUTPUT);
 
-  ledcSetup(0, 1000, 8);
+
+  ledcSetup(0, 5000, 8);
   ledcAttachPin(LED_PIN, 0);
+
 }
 
 void loop() {
