@@ -43,18 +43,18 @@ void printToScreen(String firstLine, String secondLine, String thirdLine, String
   display.println(firstLine);
   display.println(secondLine);
   display.println(thirdLine);
-  display.println(fourthLine);
+  display.println(fourthLine); 
   display.display();
 }
 
 void lightLed(int analogValue, int threshold){
-  ledcWrite(0, map(analogValue, 0, 4095, 255, 0));
+  //ledcWrite(0, map(analogValue, 0, 4095, 255, 0));
   if(analogValue < threshold){
-    //digitalWrite(LED_PIN, HIGH);
+    digitalWrite(LED_PIN, HIGH);
     printToScreen("LIGHT UP!", "", "", "");
   }
   else{
-    //digitalWrite(LED_PIN, LOW);
+    digitalWrite(LED_PIN, LOW);
     printToScreen("LIGHT DOWN!", "", "", "");
   }
 }
@@ -92,8 +92,8 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
 
 
-  ledcSetup(0, 5000, 8);
-  ledcAttachPin(LED_PIN, 0);
+  //ledcSetup(0, 5000, 8);
+  //ledcAttachPin(LED_PIN, 0); //
 
 }
 
@@ -111,6 +111,6 @@ void loop() {
     int rssi = LoRa.packetRssi();
     Serial.print("  with RSSI ");    
     Serial.println(rssi);
-    lightLed(value, 2000);
+    lightLed(value, 100);
   }
 }

@@ -84,5 +84,5 @@ void loop() {
 
   printToScreen("TX packet: ", "Value: "+String(analogValue),"", "");
   
-  delay(100);
+  delay(500);
 }
