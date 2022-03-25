@@ -9,7 +9,7 @@
 #include <SPI.h>
 #include <LoRa.h>
 
-#include "RTPPhotoDiodeTrigger.h"
+#include "LSAnalogTrigger.h"
 
 #define LDR_PIN 13
 #define LED_PIN 21
@@ -38,7 +38,7 @@
 #define BAND 866E6
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
-RTPPhotoDiodeTrigger ldrTrigger(0, LDR_PIN);
+LSAnalogTrigger ldrTrigger(0, LDR_PIN);
 
 const int thresholdValue = 1000;
 
@@ -92,22 +92,5 @@ void setup() {
 }
 
 void loop() {
-  /*int analogValue = analogRead(LDR_PIN);
-  Serial.printf("LDR value: %d\n", analogValue);
-  int pwmValue = map(analogValue, 0, 4095, 0, 255);*/
-  //ledcWrite(PWM_CHANNEL, pwmValue);
-  //printToScreen("LDR value: ", String(analogValue), "", "");
-
   ldrTrigger.readnShoot(actOnPhotoDiodeTrigger);
-  /*
-  if(analogValue < thresholdValue){
-    digitalWrite(LED_PIN, HIGH);
-    Serial.println("LIGHT UP!");
-  }
-  else{
-    digitalWrite(LED_PIN, LOW);
-    Serial.println("LIGHT DOWN!");
-  }
-  */
- //delay(100);
 }
