@@ -49,7 +49,8 @@ void printToScreen(String firstLine, String secondLine, String thirdLine, String
 
 void lightLed(String text){
   digitalWrite(LED_PIN, text=="OFF");
-  printToScreen(text, "", "", "");
+  String relayStateText = (text=="OFF") ? "ON":"OFF";
+  printToScreen("RELAY", "ID: 0", relayStateText, "");
 }
 
 void setup() { 
@@ -87,13 +88,11 @@ void setup() {
 void loop() {
   int packetSize = LoRa.parsePacket();
   if (packetSize) {
-    int value;
     Serial.print("Received packet ");
     while (LoRa.available()) {
       LoRaData = LoRa.readString();
       Serial.print(LoRaData);
       lightLed(LoRaData);
-      Serial.print(value);
     }
     int rssi = LoRa.packetRssi();
     Serial.print("  with RSSI ");    
