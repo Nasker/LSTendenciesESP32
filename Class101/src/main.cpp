@@ -12,9 +12,9 @@
 #include "LSAnalogTrigger.h"
 
 #define LDR_PIN 13
-#define LED_PIN 21
+#define LED_PIN 17
 #define PWM_CHANNEL 0
-#define PWM_FREQ 5000
+#define PWM_FREQ 1000
 #define PWM_RES 8
 
 //OLED pins
