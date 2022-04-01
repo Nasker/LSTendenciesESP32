@@ -10,9 +10,11 @@
 #include <LoRa.h>
 
 #include "LSAnalogTrigger.h"
+#include "LSDigitalTrigger.h"
 
 #define LDR_PIN 13
 #define LED_PIN 17
+#define BTN_PIN 0
 #define PWM_CHANNEL 0
 #define PWM_FREQ 1000
 #define PWM_RES 8
@@ -39,6 +41,7 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
 LSAnalogTrigger ldrTrigger(0, LDR_PIN);
+LSDigitalTrigger btnTrigger(1, BTN_PIN);
 
 const int thresholdValue = 1000;
 
@@ -93,4 +96,5 @@ void setup() {
 
 void loop() {
   ldrTrigger.readnShoot(actOnPhotoDiodeTrigger);
+  btnTrigger.readnShoot(actOnPhotoDiodeTrigger);
 }
