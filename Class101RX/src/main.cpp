@@ -33,8 +33,6 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
 
-String LoRaData;
-
 void printToScreen(String firstLine, String secondLine, String thirdLine, String fourthLine){
   display.clearDisplay();
   display.setTextSize(1);
@@ -90,7 +88,7 @@ void loop() {
   if (packetSize) {
     Serial.print("Received packet ");
     while (LoRa.available()) {
-      LoRaData = LoRa.readString();
+      String LoRaData = LoRa.readString();
       Serial.print(LoRaData);
       lightLed(LoRaData);
     }

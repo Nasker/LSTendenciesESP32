@@ -12,9 +12,10 @@
 #include "LSAnalogTrigger.h"
 #include "LSDigitalTrigger.h"
 
-#define LDR_PIN 13
-#define LED_PIN 17
+#define LDR_PIN 12
+#define LED_PIN BUILTIN_LED
 #define BTN_PIN 0
+
 #define PWM_CHANNEL 0
 #define PWM_FREQ 1000
 #define PWM_RES 8
@@ -58,7 +59,10 @@ void printToScreen(String firstLine, String secondLine, String thirdLine, String
 }
 
 void actOnPhotoDiodeTrigger(int ID, String callbackString){
-  printToScreen("LDR", "ID:"+String(ID), callbackString,"");
+  String device;
+  ID == 0 ? device = "LDR" : device = "BTN";
+  printToScreen(device, "ID:"+String(ID), callbackString,"");
+  Serial.printf("%s: ID:%d, %s\n",device.c_str(), ID, callbackString.c_str());
   LoRa.beginPacket();
   LoRa.print(callbackString);
   LoRa.endPacket();
@@ -81,6 +85,7 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
   printToScreen("LORA SENDER", "TEST", "", "");
+  delay(1000);
 
     //SPI LoRa pins
   SPI.begin(SCK, MISO, MOSI, SS);
