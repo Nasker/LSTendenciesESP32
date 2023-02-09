@@ -21,11 +21,11 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
-char ssid[] = "CLOTENCSACOLLBATO";          // your network SSID (name)
-char pass[] = "Xmp13051985!";                    // your network password
+char ssid[] = "lstendencieswifi";          // your network SSID (name)
+char pass[] = "arduinorules";                    // your network password
 
 WiFiUDP Udp;                                // A UDP instance to let us send and receive packets over UDP
-const IPAddress outIp(192,168,1,61);        // remote IP of your computer
+const IPAddress outIp(192,168,0,102);        // remote IP of your computer
 const unsigned int outPort = 9999;          // remote port to receive OSC
 const unsigned int localPort = 8888;        // local port to listen for OSC packets (actually not used for sending)
 
@@ -54,7 +54,7 @@ void actOnTrigger(int ID, String callbackString){
     Udp.endPacket();
     msg.empty();
     Serial.println("Sent OSC message");
-    printToScreen("Button pressed", "Sent OSC message", "", "");
+    printToScreen(WiFi.localIP().toString(), String(localPort),"Button pressed", "Sent OSC message");
   }
 }
 
@@ -85,7 +85,6 @@ void setup() {
   Serial.println(WiFi.localIP());
   Udp.begin(localPort);
   Serial.printf("Local port: %d\n", localPort);
-  delay(1000);
 }
 
 void loop() {

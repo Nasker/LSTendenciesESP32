@@ -16,12 +16,13 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
-char ssid[] = "CLOTENCSACOLLBATO";          // your network SSID (name)
-char pass[] = "Xmp13051985!";                    // your network password
+char ssid[] = "lstendencieswifi";          // your network SSID (name)
+char pass[] = "arduinorules";                    // your network password
 
 WiFiUDP Udp;                                // A UDP instance to let us send and receive packets over UDP
 const unsigned int localPort = 9999;        // local port to listen for OSC packets (actually not used for sending)
 OSCErrorCode error;
+bool relayStatus = false;
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
 
@@ -38,10 +39,9 @@ void printToScreen(String firstLine, String secondLine, String thirdLine, String
 }
 
 void handleMessage(OSCMessage &msg){
-  printToScreen("Received OSC message", String(msg.getFloat(0)), "", "");
-  digitalWrite(BUILTIN_LED, true);
-  delay(100);
-  digitalWrite(BUILTIN_LED, false);
+  printToScreen(WiFi.localIP().toString(), String(localPort), "Received OSC message", String(msg.getFloat(0)));
+  relayStatus = !relayStatus;
+  digitalWrite(BUILTIN_LED, relayStatus);
 }
 
 void setup() {
@@ -69,11 +69,10 @@ void setup() {
   Serial.println();
   Serial.print("Connected to WiFi with IP: ");
   Serial.println(WiFi.localIP());
-  printToScreen("Connected to WiFi with IP:", String(WiFi.localIP()), "", "");
   Udp.begin(localPort);
   Serial.printf("Local port: %d\n", localPort);
-  delay(1000);
   pinMode(BUILTIN_LED, OUTPUT);
+  printToScreen(WiFi.localIP().toString(), String(localPort),"Waiting for OSC msg", "");
 }
 
 void loop(){
