@@ -39,8 +39,12 @@ void printToScreen(String firstLine, String secondLine, String thirdLine, String
 }
 
 void handleMessage(OSCMessage &msg){
-  printToScreen(WiFi.localIP().toString(), String(localPort), "Received OSC message", String(msg.getFloat(0)));
-  relayStatus = !relayStatus;
+  char* receivedString;
+  if(msg.isString(0)){
+    msg.getString(0, receivedString);
+    relayStatus = receivedString == "ON";
+  } 
+  printToScreen(WiFi.localIP().toString(), String(localPort), "Received OSC message", receivedString);
   digitalWrite(BUILTIN_LED, relayStatus);
 }
 

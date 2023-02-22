@@ -45,22 +45,19 @@ void printToScreen(String firstLine, String secondLine, String thirdLine, String
 }
 
 void actOnTrigger(int ID, String callbackString){
-  if(callbackString == "ON"){
     Serial.println("Button pressed");
     OSCMessage msg("/test");
-    msg.add("hello, osc.");
+    msg.add(callbackString);
     Udp.beginPacket(outIp, outPort);
     msg.send(Udp);
     Udp.endPacket();
     msg.empty();
     Serial.println("Sent OSC message");
-    printToScreen(WiFi.localIP().toString(), String(localPort),"Button pressed", "Sent OSC message");
-  }
+    printToScreen(WiFi.localIP().toString(), String(localPort),"Sent OSC Message", callbackString);
 }
 
 void setup() {
   Serial.begin(115200);
-
   //initialize OLED
   pinMode(OLED_RST, OUTPUT);
   digitalWrite(OLED_RST, LOW);
