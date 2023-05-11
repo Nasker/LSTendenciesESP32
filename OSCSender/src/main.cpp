@@ -25,7 +25,7 @@ char ssid[] = "lstendencieswifi";          // your network SSID (name)
 char pass[] = "arduinorules";                    // your network password
 
 WiFiUDP Udp;                                // A UDP instance to let us send and receive packets over UDP
-const IPAddress outIp(192,168,0,102);        // remote IP of your computer
+const IPAddress outIp(192,168,0,101);        // remote IP of your computer
 const unsigned int outPort = 9999;          // remote port to receive OSC
 const unsigned int localPort = 8888;        // local port to listen for OSC packets (actually not used for sending)
 
@@ -47,8 +47,8 @@ void printToScreen(String firstLine, String secondLine, String thirdLine, String
 void actOnTrigger(int ID, String callbackString){
     Serial.println("Button pressed");
     OSCMessage msg("/test");
-    msg.add(callbackString);
     Udp.beginPacket(outIp, outPort);
+    msg.add(callbackString.c_str());
     msg.send(Udp);
     Udp.endPacket();
     msg.empty();

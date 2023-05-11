@@ -39,10 +39,10 @@ void printToScreen(String firstLine, String secondLine, String thirdLine, String
 }
 
 void handleMessage(OSCMessage &msg){
-  char* receivedString;
+  char receivedString[100];
   if(msg.isString(0)){
     msg.getString(0, receivedString);
-    relayStatus = receivedString == "ON";
+    relayStatus = strcmp(receivedString, "ON");
   } 
   printToScreen(WiFi.localIP().toString(), String(localPort), "Received OSC message", receivedString);
   digitalWrite(BUILTIN_LED, relayStatus);
