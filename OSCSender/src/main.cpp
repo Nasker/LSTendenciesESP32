@@ -21,8 +21,8 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
-char ssid[] = "lstendencieswifi";          // your network SSID (name)
-char pass[] = "arduinorules";                    // your network password
+char ssid[] = "Nasker AP";          // your network SSID (name)
+char pass[] = "fuckyou!";                    // your network password
 
 WiFiUDP Udp;                                // A UDP instance to let us send and receive packets over UDP
 const IPAddress outIp(192,168,0,101);        // remote IP of your computer
