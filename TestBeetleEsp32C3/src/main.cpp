@@ -4,8 +4,8 @@
 #include <WiFiUdp.h>
 #include <OSCMessage.h>
 
-char ssid[] = "Nasker AP";          // your network SSID (name)
-char pass[] = "fuckyou!";   
+char ssid[] = "lstendencieswifi";          // your network SSID (name)
+char pass[] = "arduinorules";   
 
 WiFiUDP Udp;                                // A UDP instance to let us send and receive packets over UDP
 const unsigned int localPort = 9999;        // local port to listen for OSC packets (actually not used for sending)
