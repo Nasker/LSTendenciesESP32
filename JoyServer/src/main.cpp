@@ -4,11 +4,11 @@
 #include "SPIFFS.h"
 
 // Replace with your network credentials
-const char* ssid = "Nasker AP";
-const char* password = "fuckyou!";
+const char* ssid = "CLOTENCSACOLLBATO";
+const char* password = "Xmp13051985!";
 
 // Set LED GPIO
-const int ledPin = BUILTIN_LED;
+const int ledPin = LED_BUILTIN;
 // Stores LED state
 String ledState;
 
@@ -65,6 +65,28 @@ void setup(){
   //Route to load javascript file
   server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/script.js", "text/javascript");
+  });
+
+    // Route to load cursor.png image
+  server.on("/cursor1.png", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/cursor.png", "image/png");
+  });
+
+  server.on("/cursor2.png", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/cursor.png", "image/png");
+  });
+
+  // Route to load goal.png image
+  server.on("/goal.png", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/goal.png", "image/png");
+  });
+
+  server.on("/background.png", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/background.png", "image/png");
+  });
+
+    server.on("/background_music.mp3", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/background_music.mp3", "audio/mpeg");
   });
 
   // Route to set GPIO to HIGH
