@@ -2,39 +2,35 @@
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
+#include <AceButton.h>
+#include "ProgressStore.hpp"
 
+using namespace ace_button;
+
+const int BUTTON_PIN = 0;
+const int LED_PIN = LED_BUILTIN;
+
+AceButton button(BUTTON_PIN);
+ProgressStore progressStore;
 // Replace with your network credentials
 const char* ssid = "CLOTENCSACOLLBATO";
 const char* password = "Xmp13051985!";
 
-// Set LED GPIO
-const int ledPin = LED_BUILTIN;
-// Stores LED state
 String ledState;
-
-// Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-// Replaces placeholder with LED state value
-String processor(const String& var){
-  Serial.println(var);
-  if(var == "STATE"){
-    if(digitalRead(ledPin)){
-      ledState = "ON";
-    }
-    else{
-      ledState = "OFF";
-    }
-    Serial.print(ledState);
-    return ledState;
-  }
-  return String();
-}
+void handleEvent(AceButton*, uint8_t, uint8_t);
  
 void setup(){
-  // Serial port for debugging purposes
   Serial.begin(115200);
-  pinMode(ledPin, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, LOW);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+
+  ButtonConfig* buttonConfig = button.getButtonConfig();
+  buttonConfig->setEventHandler(handleEvent);
+  buttonConfig->setFeature(ButtonConfig::kFeatureDoubleClick);
+  buttonConfig->setFeature(ButtonConfig::kFeatureLongPress);
 
   // Initialize SPIFFS
   if(!SPIFFS.begin(true)){
@@ -54,7 +50,7 @@ void setup(){
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html", String(), false, processor);
+    request->send(SPIFFS, "/index.html", String(), false);
   });
   
   // Route to load style.css file
@@ -62,12 +58,10 @@ void setup(){
     request->send(SPIFFS, "/styles.css", "text/css");
   });
 
-  //Route to load javascript file
   server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/script.js", "text/javascript");
   });
 
-    // Route to load cursor.png image
   server.on("/cursor1.png", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/cursor.png", "image/png");
   });
@@ -76,7 +70,6 @@ void setup(){
     request->send(SPIFFS, "/cursor.png", "image/png");
   });
 
-  // Route to load goal.png image
   server.on("/goal.png", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/goal.png", "image/png");
   });
@@ -89,41 +82,23 @@ void setup(){
     request->send(SPIFFS, "/background_music.mp3", "audio/mpeg");
   });
 
-  // Route to set GPIO to HIGH
-  server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request){
-    digitalWrite(ledPin, HIGH);    
-    request->send(SPIFFS, "/index.html", String(), false, processor);
-  });
-  
-  // Route to set GPIO to LOW
-  server.on("/off", HTTP_GET, [](AsyncWebServerRequest *request){
-    digitalWrite(ledPin, LOW);    
-    request->send(SPIFFS, "/index.html", String(), false, processor);
-  });
-/*
-  server.on("/send", HTTP_GET, []() {
-    if (server.hasArg("x") && server.hasArg("y")) {
-      String x = server.arg("x");
-      String y = server.arg("y");
-      Serial.print("X: ");
-      Serial.print(x);
-      Serial.print(" Y: ");
-      Serial.println(y);
-
-      // Send UART data
-      Serial2.print("X:");
-      Serial2.print(x);
-      Serial2.print(" Y:");
-      Serial2.println(y);
-    }
-    server.send(200, "text/plain", "OK");
-  });
-*/
-  // Start server
   server.begin();
   Serial.println("HTTP server started");
 }
  
 void loop(){
-  
+  button.check();
+}
+
+void handleEvent(AceButton*, uint8_t eventType, uint8_t buttonState) {
+  switch (eventType) {
+    case AceButton::kEventDoubleClicked:
+      progressStore.incrementProgress();
+      Serial.printf("Current progress: %d\n", progressStore.getProgress());
+      break;
+    case AceButton::kEventLongPressed:
+      progressStore.resetProgress();
+      Serial.println("Resetting progress");
+      break;
+  }
 }
