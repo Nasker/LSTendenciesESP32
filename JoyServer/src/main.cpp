@@ -13,7 +13,7 @@ const int LED_PIN = LED_BUILTIN;
 AceButton button(BUTTON_PIN);
 ProgressStore progressStore;
 // Replace with your network credentials
-const char* ssid = "CLOTENCSACOLLBATO";
+const char* ssid = "CLOTENCSACOLLBATO_EXT";
 const char* password = "Xmp13051985!";
 
 String ledState;
@@ -63,11 +63,11 @@ void setup(){
   });
 
   server.on("/cursor1.png", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/cursor.png", "image/png");
+    request->send(SPIFFS, "/cursor1.png", "image/png");
   });
 
   server.on("/cursor2.png", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/cursor.png", "image/png");
+    request->send(SPIFFS, "/cursor2.png", "image/png");
   });
 
   server.on("/goal.png", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -82,6 +82,22 @@ void setup(){
     request->send(SPIFFS, "/background_music.mp3", "audio/mpeg");
   });
 
+  server.on("/get-progress", HTTP_GET, [](AsyncWebServerRequest *request){
+    int progress = progressStore.getProgress();
+    request->send(200, "text/plain", String(progress));
+});
+
+  server.on("/update-progress", HTTP_GET, [](AsyncWebServerRequest *request){
+    if (request->hasParam("value")) {
+        String value = request->getParam("value")->value();
+        int progress = value.toInt();
+        progressStore.setProgress(progress);
+        request->send(200, "text/plain", "Progress updated to: " + value);
+    } else {
+        request->send(400, "text/plain", "No value provided");
+    }
+  });
+
   server.begin();
   Serial.println("HTTP server started");
 }
@@ -94,11 +110,13 @@ void handleEvent(AceButton*, uint8_t eventType, uint8_t buttonState) {
   switch (eventType) {
     case AceButton::kEventDoubleClicked:
       progressStore.incrementProgress();
-      Serial.printf("Current progress: %d\n", progressStore.getProgress());
+      progressStore.saveProgress();
+      Serial.printf("+1, Current progress: %d\n", progressStore.getProgress());
       break;
     case AceButton::kEventLongPressed:
-      progressStore.resetProgress();
-      Serial.println("Resetting progress");
+      progressStore.decrementProgress();
+      progressStore.saveProgress();
+      Serial.printf("-1, Current progress: %d\n", progressStore.getProgress());
       break;
   }
 }

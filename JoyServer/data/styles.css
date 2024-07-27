@@ -58,8 +58,8 @@ p {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  border: none; /* Super Mario yellow border */
-  animation: cursor-animation 0.5s steps(2) infinite;
+  border: 2px solid #ffcc00; /* Super Mario yellow border */
+  animation: cursor-animation 1s steps(2) infinite;
 }
 
 .goal {
@@ -67,9 +67,14 @@ p {
   top: 0;
   right: 0;
   transform: translate(50%, -50%);
-  width: 200px;
-  height: 200px;
-  border: none;
+  width: 70px;
+  height: 70px;
+  border: 2px solid #ffcc00; /* Super Mario yellow border */
+}
+
+.progress-value {
+  margin-top: 20px;
+  font-size: 1.5em;
 }
 
 @keyframes cursor-animation {

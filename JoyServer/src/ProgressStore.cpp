@@ -10,8 +10,16 @@ void ProgressStore::incrementProgress(){
     progress++;
 }
 
+void ProgressStore::decrementProgress(){
+    progress--;
+}
+
+void ProgressStore::setProgress(int newProgress){
+    progress = newProgress;
+}
+
 void ProgressStore::resetProgress(){
-    progress = 0;
+    progress--;
 }
 
 int ProgressStore::getProgress(){

@@ -1,16 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
   const progressElement = document.querySelector('.progress');
   const cursorElement = document.querySelector('.cursor');
-  let currentProgress = 1; // Initial progress value
+  const progressPercentageElement = document.getElementById('progress-percentage');
   let cursorImages = ['cursor1.png', 'cursor2.png']; // Add more images as needed
   let currentImageIndex = 0;
 
   // Function to update progress
   function updateProgress(progress) {
     progressElement.style.width = progress + '%';
+    progressPercentageElement.textContent = progress + '%';
   }
 
-  // Function to animate cursor
+  // Fetch initial progress value from the server
+  fetch('/get-progress')
+    .then(response => response.text())
+    .then(progress => {
+      console.log('Initial progress:', progress);
+      updateProgress(progress);
+    });
+
+  /*// Function to animate cursor
   function animateCursor() {
     cursorElement.style.backgroundImage = `url(${cursorImages[currentImageIndex]})`;
     currentImageIndex = (currentImageIndex + 1) % cursorImages.length;
@@ -18,17 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Set interval to change cursor image every second
   setInterval(animateCursor, 1000);
-
-  // Simulate progress update (example: after 2 seconds, update progress to 75%)
-  setTimeout(() => {
-    currentProgress = 75; // New progress value
-    updateProgress(currentProgress);
-  }, 2000);
-
+*/
   // Example function to be called when progress needs to be updated
   function setNewProgress(newProgress) {
-    currentProgress = newProgress;
-    updateProgress(currentProgress);
+    fetch(`/update-progress?value=${newProgress}`)
+      .then(response => response.text())
+      .then(message => {
+        console.log(message);
+        updateProgress(newProgress);
+      });
   }
 
   // Example usage: Call setNewProgress with new value when needed

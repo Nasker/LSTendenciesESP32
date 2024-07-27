@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Progress Tracker</title>
+  <title>Contador de Nits de l'Unai</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
@@ -13,17 +13,18 @@
     <p>Cada nit que dorms al teu llit t'apropes a la meta!</p>
     <div class="progress-container">
       <div class="progress-bar">
-        <div class="progress" style="width: 50%;">
-          <img src="cursor1.png" class="cursor" alt="Kid's face">
+        <div class="progress" style="width: 0%;">
+          <!--<img src="cursor1.png" class="cursor" alt="Kid's face">-->
         </div>
       </div>
-      <img src="goal.png" class="goal" alt="Goal image">
+      <!--<img src="goal.png" class="goal" alt="Goal image">-->
     </div>
+    <p class="progress-value">Progrés: <span id="progress-percentage">0%</span></p>
   </div>
   <audio id="background_music" loop autoplay>
     <source src="background_music.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
-  <script src="scripts.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
