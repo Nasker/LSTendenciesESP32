@@ -1,9 +1,16 @@
 #pragma once
 
-#include <EEPROM.h>
+#include <SPIFFS.h>
+#include <ArduinoJson.h>
 
-#define PROGRESS_ADDRESS 0
-const int MAX_PROGRESS = 30;
+struct ProgressData {
+  int value;
+  int percentage;
+  String message;
+};
+
+#define PROG_FILE "/progress.json"
+#define MAX_PROGRESS 30
 
 class ProgressStore {
   public:
@@ -12,9 +19,9 @@ class ProgressStore {
     void decrementProgress();
     void setProgress(int progress);
     void resetProgress();
-    int getProgress();
+    ProgressData getProgress();
     void saveProgress();
     void loadProgress();
   private:
-    int progress;
+    ProgressData progress;
 };
