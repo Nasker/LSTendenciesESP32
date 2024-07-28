@@ -5,6 +5,7 @@
 #include <AceButton.h>
 #include "ProgressStore.hpp"
 #include <ArduinoJson.h>
+#include <ArduinoOTA.h>
 
 using namespace ace_button;
 
@@ -118,11 +119,15 @@ void setup(){
   ws.onEvent(onWebSocketEvent);
   server.addHandler(&ws);
 
+  ArduinoOTA.setPassword("unaipeca");
+  ArduinoOTA.begin();
+
   server.begin();
   Serial.println("HTTP server started");
 }
  
 void loop(){
+  ArduinoOTA.handle();
   button.check();
 }
 
