@@ -51,34 +51,7 @@ p {
   position: relative;
 }
 
-.cursor {
-  position: absolute;
-  top: -10px;
-  right: -20px;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  border: 2px solid #ffcc00; /* Super Mario yellow border */
-  animation: cursor-animation 1s steps(2) infinite;
-}
-
-.goal {
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translate(50%, -50%);
-  width: 70px;
-  height: 70px;
-  border: 2px solid #ffcc00; /* Super Mario yellow border */
-}
-
 .progress-value {
   margin-top: 20px;
   font-size: 1.5em;
-}
-
-@keyframes cursor-animation {
-  0% { background-image: url('cursor1.png'); }
-  50% { background-image: url('cursor2.png'); }
-  /* Add more frames if you have more images */
 }

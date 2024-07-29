@@ -1,11 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const progressElement = document.querySelector('.progress');
-  const cursorElement = document.querySelector('.cursor');
   const progressValueElement = document.getElementById('progress-value');
   const progressPercentageElement = document.getElementById('progress-percentage');
   const progressPhraseElement = document.getElementById('progress-phrase');
-  let cursorImages = ['cursor1.png', 'cursor2.png']; // Add more images as needed
-  let currentImageIndex = 0;
 
   // Function to update progress
   function updateProgress(value, percentage, phrase) {
@@ -21,12 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(data => {
       updateProgress(data.value, data.percentage, data.phrase);
     });
-
-  // Function to animate cursor
-  function animateCursor() {
-    cursorElement.src = cursorImages[currentImageIndex];
-    currentImageIndex = (currentImageIndex + 1) % cursorImages.length;
-  }
 
   // Setup WebSocket connection
   const ws = new WebSocket(`ws://${window.location.hostname}/ws`);

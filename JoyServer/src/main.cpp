@@ -85,18 +85,6 @@ void setup(){
     request->send(SPIFFS, "/script.js", "text/javascript");
   });
 
-  server.on("/cursor1.png", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/cursor1.png", "image/png");
-  });
-
-  server.on("/cursor2.png", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/cursor2.png", "image/png");
-  });
-
-  server.on("/goal.png", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/goal.png", "image/png");
-  });
-
   server.on("/background.png", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/background.png", "image/png");
   });
