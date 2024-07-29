@@ -9,7 +9,7 @@ struct ProgressData {
   String message;
 };
 
-#define PROG_FILE "/progress.json"
+#define PROG_FILE "/settings/progress.json"
 #define MAX_PROGRESS 30
 
 class ProgressStore {

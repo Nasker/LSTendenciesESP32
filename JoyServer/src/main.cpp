@@ -24,7 +24,7 @@ AsyncWebSocket ws("/ws");
 
 void handleEvent(AceButton*, uint8_t, uint8_t);
 
-void notifyClients() {
+String serializeProgress(){
   JsonDocument doc;
   doc["value"] = MAX_PROGRESS - progressStore.getProgress().value;
   doc["percentage"] = progressStore.getProgress().percentage;
@@ -32,7 +32,11 @@ void notifyClients() {
   String json;
   doc.shrinkToFit();
   serializeJson(doc, json);
-  ws.textAll(json);
+  return json;
+}
+
+void notifyClients() {
+  ws.textAll(serializeProgress());
 }
 
 void onWebSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len) {
@@ -61,47 +65,39 @@ void setup(){
     return;
   }
 
-  // Connect to Wi-Fi
   WiFi.begin(ssid, password);
+  Serial.println("Connecting to WiFi.");
   while (WiFi.status() != WL_CONNECTED) {
+    Serial.println(".");
     delay(1000);
-    Serial.println("Connecting to WiFi..");
   }
 
-  // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html", String(), false);
+    request->send(SPIFFS, "/site/index.html", String(), false);
   });
   
   // Route to load style.css file
   server.on("/styles.css", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/styles.css", "text/css");
+    request->send(SPIFFS, "/site/styles.css", "text/css");
   });
 
   server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/script.js", "text/javascript");
+    request->send(SPIFFS, "/site/script.js", "text/javascript");
   });
 
   server.on("/background.png", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/background.png", "image/png");
+    request->send(SPIFFS, "/site/background.png", "image/png");
   });
 
   server.on("/background_music.mp3", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/background_music.mp3", "audio/mpeg");
+    request->send(SPIFFS, "/site/background_music.mp3", "audio/mpeg");
   });
 
   server.on("/get-progress", HTTP_GET, [](AsyncWebServerRequest *request){
-    JsonDocument doc;
-    doc["value"] = MAX_PROGRESS - progressStore.getProgress().value;
-    doc["percentage"] = progressStore.getProgress().percentage;
-    doc["phrase"] = progressStore.getProgress().message;
-    String json;
-    doc.shrinkToFit();
-    serializeJson(doc, json);
-    request->send(200, "application/json", json);
+    request->send(200, "application/json", serializeProgress());
   });
 
   ws.onEvent(onWebSocketEvent);
