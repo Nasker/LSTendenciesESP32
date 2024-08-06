@@ -66,6 +66,8 @@ void setup(){
   }
 
   WiFi.begin(ssid, password);
+  //make ip static at 192.168.1.96
+  WiFi.config(IPAddress(192, 168, 1, 96), IPAddress(192, 168, 1, 1), IPAddress(255, 255, 255, 0));
   Serial.println("Connecting to WiFi.");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.println(".");
