@@ -90,10 +90,6 @@ void setup(){
     request->send(SPIFFS, "/site/script.js", "text/javascript");
   });
 
-  server.on("/background.png", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/site/background.png", "image/png");
-  });
-
   server.on("/background_music.mp3", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/site/background_music.mp3", "audio/mpeg");
   });
