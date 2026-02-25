@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Control Panel</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ESP32 Control Panel</h1>
+            <div class="status-badge" id="connectionStatus">Connected</div>
+        </header>
+
+        <main>
+            <!-- LED Control Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">💡</span>
+                    <h2>LED Control</h2>
+                </div>
+                <div class="card-body">
+                    <div class="indicator" id="ledIndicator">
+                        <span class="indicator-dot" id="ledDot"></span>
+                        <span class="indicator-text" id="ledText">OFF</span>
+                    </div>
+                    <button class="btn btn-primary" id="ledToggleBtn" onclick="toggleLED()">
+                        Toggle LED
+                    </button>
+                </div>
+            </div>
+
+            <!-- Button Status Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">🔘</span>
+                    <h2>Physical Button</h2>
+                </div>
+                <div class="card-body">
+                    <div class="indicator" id="buttonIndicator">
+                        <span class="indicator-dot" id="buttonDot"></span>
+                        <span class="indicator-text" id="buttonText">RELEASED</span>
+                    </div>
+                    <div class="info-text">Physical button state (GPIO)</div>
+                </div>
+            </div>
+
+            <!-- System Info Card -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">📊</span>
+                    <h2>System Info</h2>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">WiFi SSID:</span>
+                            <span class="info-value" id="wifiSsid">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">IP Address:</span>
+                            <span class="info-value" id="ipAddress">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Signal Strength:</span>
+                            <span class="info-value" id="rssi">--</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Uptime:</span>
+                            <span class="info-value" id="uptime">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>ESP32 Web Interface &copy; 2026</p>
+        </footer>
+    </div>
+
+    <script src="/script.js"></script>
+</body>
+</html>
