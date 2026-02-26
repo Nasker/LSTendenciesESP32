@@ -28,20 +28,10 @@ void AppController::begin() {
     _fs.begin();
     _wifi.begin();
 
-    // Check if we're rebooting to connect (workaround for ESP32-C3 WiFi bug)
-    if (NvsStorage::shouldAutoConnect()) {
-        Serial.println("\n[BOOT] NVS credentials found, auto-connecting...");
-        String ssid, password;
-        NvsStorage::getCredentials(ssid, password);
-        NvsStorage::clear();  // Clear so we don't loop if it fails
-        
-        if (_wifi.connect(ssid, password)) {
-            _connected = true;
-            _web.begin();
-            Serial.println("\n[BOOT] Auto-connected successfully!");
-        } else {
-            Serial.println("\n[BOOT] Auto-connect failed, entering scan mode...");
-        }
+    // Try auto-connect with stored credentials if network is available
+    if (_wifi.tryAutoConnect()) {
+        _connected = true;
+        _web.begin();
     }
 
     printDiagnostics();
@@ -125,11 +115,22 @@ void AppController::promptAndConnect() {
         Serial.println("[CONN] Network is open, no password needed.");
     }
 
-    // WORKAROUND: Store credentials and reboot instead of connecting directly
-    Serial.println("\n[CONN] Storing credentials and rebooting to connect...");
-    NvsStorage::store(ssid, password);
-    delay(100);
-    esp_restart();
+    // Connect directly - TX power fix handles the interference issue
+    Serial.println("\n[CONN] Connecting...");
+    
+    if (_wifi.connect(ssid, password)) {
+        _connected = true;
+        _web.begin();
+        
+        // Store credentials for auto-connect next time
+        NvsStorage::store(ssid, password);
+        Serial.println("[CONN] Credentials stored for auto-connect");
+        
+        Serial.println("\n[CONN] Connected successfully!");
+    } else {
+        Serial.println("\n[CONN] Connection failed. Check password and try again.");
+        waitAndRescan();
+    }
 }
 
 String AppController::readPasswordMasked() {

@@ -1,12 +1,17 @@
 #include "Managers/WiFiManager.h"
+#include "RtcStorage.h"
 
 WiFiManager::WiFiManager() : _networkCount(0), _onConnected(nullptr) {}
 
 void WiFiManager::begin() {
     // Initialize WiFi to get TCP/IP stack ready
     WiFi.mode(WIFI_STA);
-    WiFi.persistent(false);  // Don't save credentials to flash
-    WiFi.setAutoReconnect(false);  // We'll manage connection manually
+    WiFi.persistent(true);  // Don't save credentials to flash
+    WiFi.setAutoReconnect(true);  // We'll manage connection manually
+    
+    // ESP32-C3 board layout interference fix: reduce TX power
+    WiFi.setTxPower(WIFI_POWER_8_5dBm);
+    Serial.println("[WIFI] TX power reduced to 8.5dBm for board stability");
 }
 
 int WiFiManager::scanNetworks() {
@@ -114,39 +119,8 @@ bool WiFiManager::waitForIdle(unsigned long timeoutMs) {
 bool WiFiManager::connect(const String& ssid, const String& password) {
     Serial.println("\n[CONN] Connecting to: " + ssid);
     
-    // AGGRESSIVE: Power cycle WiFi radio to force clean state
-    Serial.println("[CONN] Power cycling WiFi radio...");
-    WiFi.mode(WIFI_OFF);
-    delay(200);
-    WiFi.mode(WIFI_STA);
-    delay(200);
-    
-    // Ensure WiFi is in STA mode
-    if (WiFi.getMode() != WIFI_STA) {
-        Serial.println("[CONN] Setting WiFi mode to STA...");
-        WiFi.mode(WIFI_STA);
-        delay(100);
-    }
-    
-    // Wait for IDLE status
-    Serial.print("[CONN] Waiting for IDLE");
-    int waitStart = millis();
-    while (WiFi.status() != WL_IDLE_STATUS) {
-        if (millis() - waitStart > 3000) break;
-        delay(50);
-        Serial.print(".");
-    }
-    Serial.println(" status: " + getStatusString());
-    
-    Serial.println("[CONN] STA MAC: " + WiFi.macAddress());
-    
-    // Try the connection
-    Serial.println("[CONN] Calling WiFi.begin()...");
+    // Simple connection - TX power fix is already applied in begin()
     WiFi.begin(ssid.c_str(), password.c_str());
-    
-    // Yield to let the WiFi task start
-    delay(100);
-    Serial.println("[CONN] After begin, status: " + getStatusString());
     
     int attempts = 0;
     int lastStatus = -1;
@@ -178,6 +152,55 @@ bool WiFiManager::connect(const String& ssid, const String& password) {
     
     Serial.println("✗ Failed");
     return false;
+}
+
+bool WiFiManager::tryAutoConnect() {
+    // Check if we have stored credentials
+    if (!NvsStorage::shouldAutoConnect()) {
+        return false;
+    }
+    
+    String storedSsid, storedPassword;
+    NvsStorage::getCredentials(storedSsid, storedPassword);
+    
+    if (storedSsid.length() == 0) {
+        return false;
+    }
+    
+    Serial.println("\n[AUTO] Stored credentials found for: " + storedSsid);
+    Serial.println("[AUTO] Scanning for matching network...");
+    
+    // Scan networks
+    int count = scanNetworks();
+    if (count <= 0) {
+        Serial.println("[AUTO] No networks found, auto-connect failed");
+        return false;
+    }
+    
+    // Check if stored SSID is in scan results
+    bool found = false;
+    int foundIndex = -1;
+    for (int i = 0; i < count; i++) {
+        if (WiFi.SSID(i) == storedSsid) {
+            found = true;
+            foundIndex = i;
+            break;
+        }
+    }
+    
+    if (!found) {
+        Serial.println("[AUTO] Stored network '" + storedSsid + "' not found in scan");
+        return false;
+    }
+    
+    Serial.println("[AUTO] Network found! RSSI: " + String(WiFi.RSSI(foundIndex)) + " dBm");
+    Serial.println("[AUTO] Connecting...");
+    
+    // Clear credentials so we don't auto-connect again on next boot
+    NvsStorage::clear();
+    
+    // Connect
+    return connect(storedSsid, storedPassword);
 }
 
 void WiFiManager::disconnect() {

@@ -70,6 +70,12 @@ public:
     bool connect(const String& ssid, const String& password);
 
     /**
+     * @brief Try to auto-connect using stored credentials if SSID matches scanned network
+     * @return true if connected to a matching network, false otherwise
+     */
+    bool tryAutoConnect();
+
+    /**
      * @brief Disconnect from WiFi
      */
     void disconnect();
