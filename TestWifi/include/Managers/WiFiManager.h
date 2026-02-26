@@ -55,6 +55,13 @@ public:
     bool networkRequiresPassword(int index) const;
 
     /**
+     * @brief Wait until WiFi reaches idle state
+     * @param timeoutMs Maximum time to wait in milliseconds
+     * @return true if idle state reached
+     */
+    bool waitForIdle(unsigned long timeoutMs = 5000);
+
+    /**
      * @brief Connect to a network with password
      * @param ssid Network name
      * @param password Password (empty for open networks)

@@ -3,22 +3,43 @@
 WiFiManager::WiFiManager() : _networkCount(0), _onConnected(nullptr) {}
 
 void WiFiManager::begin() {
+    // Initialize WiFi to get TCP/IP stack ready
     WiFi.mode(WIFI_STA);
+    WiFi.persistent(false);  // Don't save credentials to flash
+    WiFi.setAutoReconnect(false);  // We'll manage connection manually
 }
 
 int WiFiManager::scanNetworks() {
-    Serial.println("[SCAN] Scanning for WiFi networks...\n");
-    _networkCount = WiFi.scanNetworks();
+    Serial.println("[SCAN] Starting async WiFi scan...");
     
-    if (_networkCount == 0) {
+    // Start async scan (true = async, false = blocking)
+    WiFi.scanNetworks(true);
+    
+    // Poll for completion
+    int scanStatus;
+    while ((scanStatus = WiFi.scanComplete()) == WIFI_SCAN_RUNNING) {
+        delay(100);
+        Serial.print(".");
+    }
+    
+    Serial.println();
+    
+    // scanStatus now contains result count or error
+    if (scanStatus == WIFI_SCAN_FAILED) {
+        _networkCount = -1;
+        Serial.println("[SCAN] Scan failed with error: WIFI_SCAN_FAILED");
+    } else if (scanStatus == 0) {
+        _networkCount = 0;
         Serial.println("[SCAN] No networks found");
-    } else if (_networkCount < 0) {
-        Serial.println("[SCAN] Scan failed with error: " + String(_networkCount));
-    } else {
+    } else if (scanStatus > 0) {
+        _networkCount = scanStatus;
         Serial.print("[SCAN] ");
         Serial.print(_networkCount);
-        Serial.println(" networks found:\n");
+        Serial.println(" networks found:");
         printScanResults();
+    } else {
+        _networkCount = scanStatus;  // Should not happen, but handle it
+        Serial.println("[SCAN] Unexpected scan result: " + String(scanStatus));
     }
     
     return _networkCount;
@@ -68,14 +89,64 @@ bool WiFiManager::networkRequiresPassword(int index) const {
     return false;
 }
 
+bool WiFiManager::waitForIdle(unsigned long timeoutMs) {
+    unsigned long start = millis();
+    
+    WiFi.scanDelete();
+    WiFi.disconnect(true, false);
+    WiFi.mode(WIFI_OFF);
+    delay(200);
+    WiFi.mode(WIFI_STA);
+    
+    while (WiFi.status() != WL_IDLE_STATUS) {
+        if (millis() - start > timeoutMs) {
+            Serial.println("[CONN] Could not reach IDLE (at " + wifiStatusToString(WiFi.status()) + ")");
+            return false;
+        }
+        delay(100);
+        Serial.print(".");
+    }
+    
+    Serial.println("\n[CONN] WiFi IDLE reached (" + String(millis() - start) + "ms)");
+    return true;
+}
+
 bool WiFiManager::connect(const String& ssid, const String& password) {
-    Serial.println("\n[CONN] Starting connection to: " + ssid);
-    Serial.println("[CONN] Initial status: " + getStatusString());
+    Serial.println("\n[CONN] Connecting to: " + ssid);
     
-    disconnect();
-    delay(100);
+    // AGGRESSIVE: Power cycle WiFi radio to force clean state
+    Serial.println("[CONN] Power cycling WiFi radio...");
+    WiFi.mode(WIFI_OFF);
+    delay(200);
+    WiFi.mode(WIFI_STA);
+    delay(200);
     
+    // Ensure WiFi is in STA mode
+    if (WiFi.getMode() != WIFI_STA) {
+        Serial.println("[CONN] Setting WiFi mode to STA...");
+        WiFi.mode(WIFI_STA);
+        delay(100);
+    }
+    
+    // Wait for IDLE status
+    Serial.print("[CONN] Waiting for IDLE");
+    int waitStart = millis();
+    while (WiFi.status() != WL_IDLE_STATUS) {
+        if (millis() - waitStart > 3000) break;
+        delay(50);
+        Serial.print(".");
+    }
+    Serial.println(" status: " + getStatusString());
+    
+    Serial.println("[CONN] STA MAC: " + WiFi.macAddress());
+    
+    // Try the connection
+    Serial.println("[CONN] Calling WiFi.begin()...");
     WiFi.begin(ssid.c_str(), password.c_str());
+    
+    // Yield to let the WiFi task start
+    delay(100);
+    Serial.println("[CONN] After begin, status: " + getStatusString());
     
     int attempts = 0;
     int lastStatus = -1;
@@ -84,7 +155,7 @@ bool WiFiManager::connect(const String& ssid, const String& password) {
         int currentStatus = WiFi.status();
         
         if (currentStatus != lastStatus) {
-            Serial.println("\n[CONN] Status changed: " + wifiStatusToString(currentStatus));
+            Serial.println("[CONN] Status: " + wifiStatusToString(currentStatus));
             lastStatus = currentStatus;
         } else {
             Serial.print(".");
@@ -94,24 +165,18 @@ bool WiFiManager::connect(const String& ssid, const String& password) {
         attempts++;
         
         if (attempts % 10 == 0 && currentStatus == lastStatus) {
-            Serial.println(" (" + String(attempts * 0.5) + "s elapsed)");
+            Serial.println(" (" + String(attempts * 0.5) + "s)");
         }
     }
     
-    Serial.println("\n[CONN] Final status: " + getStatusString());
+    Serial.println("\n[CONN] Final: " + getStatusString());
     
     if (isConnected()) {
-        Serial.println("\n✓ [CONN] Connected successfully!");
-        Serial.println("[CONN] IP address: " + getLocalIp());
-        Serial.println("[CONN] Signal strength: " + String(getCurrentRssi()) + " dBm");
-        
-        if (_onConnected) {
-            _onConnected();
-        }
+        Serial.println("✓ Connected! IP: " + getLocalIp());
         return true;
     }
     
-    Serial.println("\n✗ [CONN] Failed to connect!");
+    Serial.println("✗ Failed");
     return false;
 }
 
